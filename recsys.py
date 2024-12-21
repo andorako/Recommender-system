@@ -150,6 +150,41 @@ def loss_RMSE(user_biases, item_biases, user_vects, item_vects, data_user_index,
 
     return -loss, rmse
 
+def predict(user_data, itm_vectors, itm_biases , top=5,  k=20, lamda=0.01, tau=0.8):
+
+    score_item = np.zeros(len(data_by_movie_index))
+    first_term = 0
+    second_term = np.zeros(k)
+
+    # Create user vector
+    for (n,r) in user_data:
+        r = float(r)
+        first_term += lamda * np.outer(itm_vectors[n], itm_vectors[n])
+        second_term += lamda * (r - itm_biases[n]) * itm_vectors[n]
+
+    first_term += (tau * np.eye(k))
+    first_term = np.linalg.inv(first_term)
+
+    user_vector = first_term @ second_term
+
+    # Get the top movies for the user
+    for n in range(len(data_by_movie_index)):
+        score_item[n] = np.inner(user_vector, itm_vectors[n]) + 0.05*itm_biases[n]
+    top_movies = np.argsort(score_item, axis=0)[-top:][::-1]
+
+    # Cite the data of the user
+    for (n,r) in user_data:
+        movie_index = map_index_to_movie[n]
+        r = float(r)
+
+        movie = movie_file['title'][movie_file['movieId'] == int(movie_index)].values[0]
+        print(f'The user rated {r} stars to **{movie}**')
+    print(f'The top {top} recommendations for this user are :')
+    for i in range(top):
+        movie_id = map_index_to_movie[top_movies[i]]
+        movie_name = movie_file['title'][movie_file['movieId'] == int(movie_id)].values[0]
+        print(f'Top {i+1}: {movie_name}')
+
 # Initialize the parameters and and train the model 
 
 # Initialisation of the parameters
