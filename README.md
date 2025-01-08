@@ -36,3 +36,8 @@ In this part, the training of the model using the data is done. It contains all 
 
 ### 3.3. Prediction
 
+Before the prediction, a training of the model with the whole data must be done. To make that, change every variable named `data_by_user_index_train` and `data_by_movie_index_train` respectively into `data_by_user_index` and `data_by_movie_index`. Then use the vectors and biases derived from this training with the code in the file 'predict.py'.
+
+## 3.4. Embedding
+
+To visualize the embedding of a selection of movie vectors in 2D. A training like in the prediction section must be done again with `k=2`. The movie vectors derived from that should be named 'item_vectors2D' and used with the code in the file 'embedding.py'.  
