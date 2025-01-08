@@ -1,59 +1,3 @@
-# Import the file 
-from google.colab import drive
-drive.mount('/content/drive')
-
-import csv
-import matplotlib.pyplot as plt
-import numpy as np
-
-
-ratings = []
-with open(ratings_path, 'r') as ratings_file:
-    data_reader = csv.reader(ratings_file, delimiter=',')
-    next(data_reader, None)
-    for row in data_reader:
-        user_id, movie_id, rating, timestamp = row
-        ratings.append([user_id, movie_id, rating, timestamp])
-
-# A function to sparse the matrix 
-def sparse(ratings):
-
-    map_user_to_index={}
-    map_index_to_user=[]
-    map_movie_to_index={}
-    map_index_to_movie=[]
-
-    data_by_user_index = []
-    data_by_movie_index = []
-
-    for row in ratings:
-      # User mapping
-      user_name = row[0]
-      movie_name = row[1]
-      rating = row[2]
-      if user_name not in map_user_to_index:
-        map_user_to_index[user_name]=len(map_user_to_index)
-        map_index_to_user.append(user_name)
-        data_by_user_index.append([])
-
-      # Movie mapping
-      if movie_name not in map_movie_to_index:
-        map_movie_to_index[movie_name]=len(map_movie_to_index)
-        map_index_to_movie.append(movie_name)
-        data_by_movie_index.append([])
-      # Fill data_by_user_index and data_by_movie_index
-      data_by_user_index[map_user_to_index[user_name]].append((map_movie_to_index[movie_name],rating))
-      data_by_movie_index[map_movie_to_index[movie_name]].append((map_user_to_index[user_name],rating))
-    sparse = map_user_to_index, map_index_to_user, map_movie_to_index, map_index_to_movie, data_by_user_index, data_by_movie_index
-    return sparse
-
-# Plot the power law distribution
-movies_by_user = [len(user_list) for user_list in data_by_user_index]
-user_per_movie = [len(movie_list) for movie_list in data_by_movie_index]
-
-movies_by_user = [len(user_list) for user_list in data_by_user_index]
-user_per_movie = [len(movie_list) for movie_list in data_by_movie_index]
-
 # Split the data randomly
 data_by_movie_index_train = []
 data_by_movie_index_test = []
@@ -149,43 +93,6 @@ def loss_RMSE(user_biases, item_biases, user_vects, item_vects, data_user_index,
     rmse = np.sqrt(rmse_one / counter)
 
     return -loss, rmse
-
-def predict(user_data, itm_vectors, itm_biases , top=5,  k=20, lamda=0.01, tau=0.8):
-
-    score_item = np.zeros(len(data_by_movie_index))
-    first_term = 0
-    second_term = np.zeros(k)
-
-    # Create user vector
-    for (n,r) in user_data:
-        r = float(r)
-        first_term += lamda * np.outer(itm_vectors[n], itm_vectors[n])
-        second_term += lamda * (r - itm_biases[n]) * itm_vectors[n]
-
-    first_term += (tau * np.eye(k))
-    first_term = np.linalg.inv(first_term)
-
-    user_vector = first_term @ second_term
-
-    # Get the top movies for the user
-    for n in range(len(data_by_movie_index)):
-        score_item[n] = np.inner(user_vector, itm_vectors[n]) + 0.05*itm_biases[n]
-    top_movies = np.argsort(score_item, axis=0)[-top:][::-1]
-
-    # Cite the data of the user
-    for (n,r) in user_data:
-        movie_index = map_index_to_movie[n]
-        r = float(r)
-
-        movie = movie_file['title'][movie_file['movieId'] == int(movie_index)].values[0]
-        print(f'The user rated {r} stars to **{movie}**')
-    print(f'The top {top} recommendations for this user are :')
-    for i in range(top):
-        movie_id = map_index_to_movie[top_movies[i]]
-        movie_name = movie_file['title'][movie_file['movieId'] == int(movie_id)].values[0]
-        print(f'Top {i+1}: {movie_name}')
-
-# Initialize the parameters and and train the model 
 
 # Initialisation of the parameters
 k = 20
