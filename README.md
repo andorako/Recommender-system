@@ -32,3 +32,7 @@ The code should begin by this part, it allows to make a visualization of the dat
 
 ### 3.2. Training of the model with the data
 
+In this part, the training of the model using the data is done. It contains all the functions needed for the training and the training itself. It's the main part of the code. The parameters are set by default with the optimal parameters. At the end, a visualization of the loss for the training data and the RMSE for both the training and validation set can be done. 
+
+### 3.3. Prediction
+
