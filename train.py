@@ -96,9 +96,9 @@ def loss_RMSE(user_biases, item_biases, user_vects, item_vects, data_user_index,
 
 # Initialisation of the parameters
 k = 20
-lamda = 0.01
-gamma = 0.001
-tau = 0.8
+lamda = 0.002
+gamma = 0.5
+tau = 0.01
 epoch = 10
 
 # Initialisation of biases and vectors
@@ -117,23 +117,40 @@ RMSE_list = []
 Loss_history_test = []
 RMSE_list_test = []
 
-# Train the model
+# Get the history
 for i in range (epoch):
 
     for m in range (M):
-        user_biases[m] = update_user_bias(m, data_by_user_index, lamda, gamma)
-        update_user_vector(m, user_biases, item_biases, user_vectors, item_vectors, data_by_user_index, lamda, tau, k)
+        user_biases[m] = update_user_bias(m, data_by_user_index_train, lamda, gamma)
+        update_user_vector(m, user_biases, item_biases, user_vectors, item_vectors, data_by_user_index_train, lamda, tau, k)
 
     for n in range (N):
-        item_biases[n] = update_item_bias(n, data_by_movie_index, lamda, gamma)
-        update_item_vector(n, user_biases, item_biases, user_vectors, item_vectors, data_by_movie_index, lamda, tau, k)
+        item_biases[n] = update_item_bias(n, data_by_movie_index_train, lamda, gamma)
+        update_item_vector(n, user_biases, item_biases, user_vectors, item_vectors, data_by_movie_index_train, lamda, tau, k)
 
-    loss, RMSE = loss_RMSE(user_biases, item_biases, user_vectors, item_vectors, data_by_user_index, data_by_movie_index, lamda, gamma, tau)
+    loss, RMSE = loss_RMSE(user_biases, item_biases, user_vectors, item_vectors, data_by_user_index_train, data_by_movie_index_train, lamda, gamma, tau)
     Loss_history.append(loss)
     RMSE_list.append(RMSE)
-    
+
     loss_test, RMSE_test = loss_RMSE(user_biases, item_biases, user_vectors, item_vectors, data_by_user_index_test, data_by_movie_index_test, lamda, gamma, tau)
     Loss_history_test.append(loss_test)
     RMSE_list_test.append(RMSE_test)
 
     print(f'Epoch{i+1} ---- Loss: {loss} ---- Loss_test: {loss_test} ---- RMSE: {RMSE} ---- RMSE_test: {RMSE_test}')
+
+# Plot the loss for the training data 
+plt.figure(figsize=(5,4))
+plt.plot(Loss_history)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Loss for the training Data')
+plt.tight_layout()
+
+# Plot the RMSE for the training and the test data 
+plt.figure(figsize=(5,4))
+plt.plot(RMSE_list, label = 'RMSE train')
+plt.plot(RMSE_list_test, label = 'RMSE test')
+plt.xlabel('Epoch')
+plt.ylabel('RMSE')
+plt.title('RMSE for training and test Data')
+plt.legend()
